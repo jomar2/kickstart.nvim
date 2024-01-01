@@ -1,43 +1,3 @@
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, understand
-  what your configuration is doing, and modify it to suit your needs.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-
-  And then you can explore or search through `:help lua-guide`
-  - https://neovim.io/doc/user/lua-guide.html
-
-
-Kickstart Guide:
-
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
-
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
---]]
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
@@ -158,24 +118,24 @@ require('lazy').setup({
 
         -- Actions
         -- visual mode
-        map('v', '<leader>hs', function()
+        map('v', '<leader>is', function()
           gs.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
         end, { desc = 'stage git hunk' })
-        map('v', '<leader>hr', function()
+        map('v', '<leader>ir', function()
           gs.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
         end, { desc = 'reset git hunk' })
         -- normal mode
-        map('n', '<leader>hs', gs.stage_hunk, { desc = 'git stage hunk' })
-        map('n', '<leader>hr', gs.reset_hunk, { desc = 'git reset hunk' })
-        map('n', '<leader>hS', gs.stage_buffer, { desc = 'git Stage buffer' })
-        map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'undo stage hunk' })
-        map('n', '<leader>hR', gs.reset_buffer, { desc = 'git Reset buffer' })
-        map('n', '<leader>hp', gs.preview_hunk, { desc = 'preview git hunk' })
-        map('n', '<leader>hb', function()
+        map('n', '<leader>is', gs.stage_hunk, { desc = 'git stage hunk' })
+        map('n', '<leader>ir', gs.reset_hunk, { desc = 'git reset hunk' })
+        map('n', '<leader>iS', gs.stage_buffer, { desc = 'git Stage buffer' })
+        map('n', '<leader>iu', gs.undo_stage_hunk, { desc = 'undo stage hunk' })
+        map('n', '<leader>iR', gs.reset_buffer, { desc = 'git Reset buffer' })
+        map('n', '<leader>ip', gs.preview_hunk, { desc = 'preview git hunk' })
+        map('n', '<leader>ib', function()
           gs.blame_line { full = false }
         end, { desc = 'git blame line' })
-        map('n', '<leader>hd', gs.diffthis, { desc = 'git diff against index' })
-        map('n', '<leader>hD', function()
+        map('n', '<leader>id', gs.diffthis, { desc = 'git diff against index' })
+        map('n', '<leader>iD', function()
           gs.diffthis '~'
         end, { desc = 'git diff against last commit' })
 
@@ -194,7 +154,15 @@ require('lazy').setup({
     'navarasu/onedark.nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      -- vim.cmd.colorscheme 'onedark'
+    end,
+  },
+
+  {
+    "Mofiqul/vscode.nvim",
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'vscode'
     end,
   },
 
@@ -205,7 +173,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = false,
-        theme = 'onedark',
+        theme = 'vscode',
         component_separators = '|',
         section_separators = '',
       },
@@ -214,15 +182,22 @@ require('lazy').setup({
 
   {
     -- Add indentation guides even on blank lines
-    'lukas-reineke/indent-blankline.nvim',
-    -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help ibl`
-    main = 'ibl',
-    opts = {},
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {
+      indent = { char = "|" },
+      -- show_trailing_blankline_indent = false
+    }
   },
-
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',
+    opts = {
+      mappings = {
+        basic = false,
+        extra = false
+      },
+    },
+  },
 
   -- Fuzzy Finder (files, lsp, etc)
   {
@@ -243,6 +218,20 @@ require('lazy').setup({
         end,
       },
     },
+    opts = {
+      defaults = {
+        file_ignore_patterns = {"%.idx","%.o", "%.cpp.o"},
+        sorting_strategy = "ascending",
+        path_display = {"smart"},
+        scroll_strategy = "limit",
+        layout_config = {
+          prompt_position = "top",
+        },
+        preview = {
+          hide_on_startup=true,
+        },
+      },
+    },
   },
 
   {
@@ -259,6 +248,48 @@ require('lazy').setup({
   --       Uncomment any of the lines below to enable them.
   -- require 'kickstart.plugins.autoformat',
   -- require 'kickstart.plugins.debug',
+  {
+    "ThePrimeagen/harpoon",
+    event = "BufEnter",
+    opts = {
+      menu = {
+        width = vim.api.nvim_win_get_width(0) - 4,
+      }
+    }
+  },
+  {
+    "mbbill/undotree",
+    cmd = {
+      "UndotreeShow",
+      "UndotreeFocus",
+      "UndotreeToggle",
+      "UndotreeHide",
+
+    }
+  },
+    { "kyazdani42/nvim-web-devicons" },
+    {
+        "echasnovski/mini.nvim",
+        version = false,
+        config = function()
+            -- require("mini.animate").setup()
+            require("mini.basics").setup()
+            require("mini.files").setup({
+                mappings = {
+                    close       = 'q',
+                    go_in       = 'L',
+                    go_in_plus  = '<enter>',
+                    go_out      = 'H',
+                    go_out_plus = '',
+                    reset       = '<BS>',
+                    reveal_cwd  = '@',
+                    show_help   = 'g?',
+                    synchronize = '=',
+                    trim_left   = '<',
+                    trim_right  = '>',
+                }})
+        end
+    },
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -278,7 +309,7 @@ vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
-
+vim.wo.relativenumber = true
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
@@ -311,6 +342,40 @@ vim.o.completeopt = 'menuone,noselect'
 vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
+local function map(mode, lhs, rhs, opts)
+  local options = {noremap = true}
+  if opts then options = vim.tbl_extend("force", options, opts) end
+  vim.keymap.set(mode, lhs, rhs, options)
+end
+
+map({"i","v","n"},"<C-c>", "<esc>")
+map({"i","v","n"},"<S-Up>", "<Up>")
+map({"i","v","n"},"<S-Down>", "<Down>")
+
+map('n','n', 'nzzzv')
+map('n','N', 'Nzzzv')
+map('n','<C-d>', '<C-d>zz')
+map('n','<C-u>', '<C-u>zz')
+map("v", "y", 'ygv<esc>')
+map('i',',',',<c-g>u')
+map('i','.','.<c-g>u')
+map('i','(','(<c-g>u')
+map('i',')',')<c-g>u')
+map('v','J',":m '>+1<CR>gv=gv")
+map('v','K',":m '<-2<CR>gv=gv")
+map("n","Q","<nop>")
+vim.cmd("com! W w")
+vim.cmd("com! Q q")
+map({"v","n"}, "<leader>d", '"_d')
+map({"v","n"}, "<leader>y", '"+y')
+-- map("n", "<leader>D", '"_D')
+vim.cmd("autocmd! FileType help wincmd L")
+map("n","§","~")
+
+-- NvimTree toggle
+map("n", "<leader>nt", ":lua MiniFiles.open()<CR>")
+map("n", "<leader>nn", ":lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>")
+map("n","<leader>u",":UndotreeToggle<CR>")
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
@@ -336,6 +401,19 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = highlight_group,
   pattern = '*',
 })
+-- Harpoon
+local silent_opts = { noremap=true, silent=true }
+vim.keymap.set("n", "<leader>ha", ":lua require('harpoon.mark').add_file()<CR>",silent_opts)
+vim.keymap.set("n", "<leader>hl", ":lua require('harpoon.ui').toggle_quick_menu()<CR>",silent_opts)
+vim.keymap.set("n", "<leader>hc", ":lua require('harpoon.cmd-ui').toggle_quick_menu()<CR>",silent_opts)
+
+vim.keymap.set("n", "<leader>1", ":lua require('harpoon.ui').nav_file(1)<CR>",silent_opts)
+vim.keymap.set("n", "<leader>2", ":lua require('harpoon.ui').nav_file(2)<CR>",silent_opts)
+vim.keymap.set("n", "<leader>3", ":lua require('harpoon.ui').nav_file(3)<CR>",silent_opts)
+vim.keymap.set("n", "<leader>4", ":lua require('harpoon.ui').nav_file(4)<CR>",silent_opts)
+
+-- Rename bind
+map("n" , "<leader>s", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>")
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
@@ -406,16 +484,28 @@ local function telescope_live_grep_open_files()
     prompt_title = 'Live Grep in Open Files',
   }
 end
-vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })
-vim.keymap.set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
+-- Telescope.
+-- map("n", "<Leader>fw", ":Telescope live_grep<CR>")
+map("n", "<Leader>gs", ":Telescope git_status<CR>")
+map("n", "<Leader>gc", ":Telescope git_commits<CR>")
+map("n", "<Leader>ff", ":Telescope find_files find_command=rg,--follow,--hidden,--files<CR>",{ desc = '[F]ind [F]iles' })
+map("v", '<Leader>fw', 'y<ESC>:Telescope live_grep default_text=<c-r>0<CR>',{ desc = '[F]ind selection/[w]ord' } )
+map("n", '<Leader>fW', 'viwy<ESC>:Telescope live_grep default_text=<c-r>0<CR>',{ desc = '[F]ind hovered [W]ord' } )
+map('n', "<leader>frc", ":lua require('telescope.builtin').find_files({prompt_title = '< VimRC >', cwd = '$HOME/.config/nvim',hidden = true})<CR>",{desc = "[F]ind in [r][c]-files"} )
+map("n", "<leader>fb",":lua require('telescope.builtin').buffers()<CR>")
+map("i", "<C-p>", "<esc>:lua require('telescope.builtin').git_files()<CR>")
+map("n", "<C-p>", ":lua require('telescope.builtin').git_files()<CR>")
+map("v", "<C-p>", "<esc>:lua require('telescope.builtin').git_files()<CR>")
+
+vim.keymap.set('n', '<leader>f/', telescope_live_grep_open_files, { desc = '[F]ind [/] in Open Files' })
+vim.keymap.set('n', '<leader>fs', require('telescope.builtin').builtin, { desc = '[F]ind [S]elect Telescope' })
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, { desc = '[F]ind [H]elp' })
+vim.keymap.set('n', '<leader>fw', require('telescope.builtin').live_grep, { desc = '[F]ind [w]ord' })
+vim.keymap.set('n', '<leader>fG', ':LiveGrepGitRoot<cr>', { desc = '[F]ind by [G]rep on Git Root' })
+vim.keymap.set('n', '<leader>fd', require('telescope.builtin').diagnostics, { desc = '[F]ind [D]iagnostics' })
+vim.keymap.set('n', '<leader>tt', require('telescope.builtin').resume, { desc = '[F]ind [R]esume' })
+
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -533,12 +623,12 @@ end
 
 -- document existing key chains
 require('which-key').register {
-  ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-  ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-  ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
-  ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
+  ['<leader>c'] = { name = '[C]ode/[C]omment', _ = 'which_key_ignore' },
+  ['<leader>d'] = { name ='[D]ocument', _ = 'which_key_ignore' },
+  ['<leader>i'] = { name = 'G[i]t', _ = 'which_key_ignore' },
+  ['<leader>h'] = { name = '[H]arpoon', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-  ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
+  ['<leader>f'] = { name = '[f]ind', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
 }
@@ -546,7 +636,7 @@ require('which-key').register {
 -- required for visual <leader>hs (hunk stage) to work
 require('which-key').register({
   ['<leader>'] = { name = 'VISUAL <leader>' },
-  ['<leader>h'] = { 'Git [H]unk' },
+  -- ['<leader>h'] = { '' },
 }, { mode = 'v' })
 
 -- mason-lspconfig requires that these setup functions are called in this order
